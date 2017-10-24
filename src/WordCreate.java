@@ -9,28 +9,54 @@ import org.apache.poi.wp.usermodel.HeaderFooterType;
 import org.apache.poi.xwpf.usermodel.*;
 import org.junit.Test;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
+import java.util.ArrayList;
 
 /**
  * 创建word文档
  */
 public class WordCreate {
 
-    /**
-     * 2007word文档创建
-     */
-
     private String[] testDesc = new String[10];
     private String[][] part1 = new String[4][11];
 
     public WordCreate(String describe[]){
         this.testDesc = describe;
-//        testDesc = describe;
     }
 
 //    @Test
     public void createWord2007() {
         XWPFDocument doc = new XWPFDocument();
         //add a header
+        addHeader(doc);
+        addPart1Table(doc);
+        addParagraph2(doc);
+
+        addNewPage(doc, BreakType.PAGE);
+        addPart2Table(doc);
+
+        // 设置字体对齐方式
+
+        FileOutputStream out;
+        try {
+            out = new FileOutputStream("word2007.docx");
+            // 以下代码可进行文件下载
+            // response.reset();
+            // response.setContentType("application/x-msdownloadoctet-stream;charset=utf-8");
+            // response.setHeader("Content-Disposition",
+            // "attachment;filename=\"" + URLEncoder.encode(fileName, "UTF-8"));
+            // OutputStream out = response.getOutputStream();
+            // this.doc.write(out);
+            // out.flush();
+
+            doc.write(out);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("success");
+
+    }
+    public void addHeader(XWPFDocument doc){
         XWPFHeader header = doc.createHeader(HeaderFooterType.DEFAULT);
         XWPFParagraph hp1 = header.createParagraph();
         XWPFRun hp1r1 = hp1.createRun();
@@ -38,9 +64,6 @@ public class WordCreate {
         hp1r1.setText("南京诺禾");
         hp1r1.setFontSize(12);
         hp1r1.setFontFamily("宋体");
-
-        //add title of report
-
         XWPFParagraph title = doc.createParagraph();
         title.setAlignment(ParagraphAlignment.CENTER);
         title.setVerticalAlignment(TextAlignment.CENTER);
@@ -98,8 +121,10 @@ public class WordCreate {
         describeRun.setText("\n" + "第1部分：氧浓度间隔≤1%(体积分数)的一对\"X\"和\"O\"反应的氧浓度测定(按8.5)" + '\n');
         describeRun.setFontSize(10);
         describeRun.setFontFamily("宋体");
+    }
 
-        // create table1 for test step 1
+    public void addPart1Table(XWPFDocument doc){
+
         XWPFTable table1 = doc.createTable();
         CTTblWidth table1Width = table1.getCTTbl().addNewTblPr().addNewTblW();
         table1Width.setType(STTblWidth.PCT);
@@ -131,31 +156,128 @@ public class WordCreate {
                 rows[i].getCell(j + 1).setText(part1[i][j]);
             }
         }
-
-        // 设置字体对齐方式
-
-        FileOutputStream out;
-        try {
-            out = new FileOutputStream("word2007.docx");
-            // 以下代码可进行文件下载
-            // response.reset();
-            // response.setContentType("application/x-msdownloadoctet-stream;charset=utf-8");
-            // response.setHeader("Content-Disposition",
-            // "attachment;filename=\"" + URLEncoder.encode(fileName, "UTF-8"));
-            // OutputStream out = response.getOutputStream();
-            // this.doc.write(out);
-            // out.flush();
-
-            doc.write(out);
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("success");
+    }
+    public void addParagraph2(XWPFDocument doc){
+        XWPFParagraph p2 = doc.createParagraph();
+        XWPFRun p2r = p2.createRun();
+        p2r.setBold(false);
+        p2r.setFontSize(10);
+        p2r.setFontFamily("宋体");
+        p2r.setText("\n此反应中\"O\"反应的氧浓度=17.0%(体积分数)(该浓度将再次用于第二部分首次测量的浓度)。\n" + "\n" +
+                "第2部分：氧指数的测定(按8.6)\n" +
+                "连续改变氧浓度的步长d=0.2%(体积分数)[除非另有说明，首选0.2%(体积分数)]。\n");
 
     }
 
+    public void addPart2Table(XWPFDocument doc){
 
+//        XWPFTable table2 = doc.createTable();
 
+        List<String> columnList = new ArrayList<String>();
+        columnList.add("序号");
+        columnList.add("姓名信息gi|姓甚|名谁");
+        columnList.add("名刺信息|籍贯|营生");
+        XWPFTable table = doc.createTable(2,5);
+
+        CTTbl ttbl = table.getCTTbl();
+        CTTblPr tblPr = ttbl.getTblPr() == null ? ttbl.addNewTblPr() : ttbl.getTblPr();
+        CTTblWidth tblWidth = tblPr.isSetTblW() ? tblPr.getTblW() : tblPr.addNewTblW();
+        CTJc cTJc=tblPr.addNewJc();
+        cTJc.setVal(STJc.Enum.forString("center"));
+        tblWidth.setW(new BigInteger("8000"));
+        tblWidth.setType(STTblWidth.DXA);
+
+        XWPFTableRow firstRow=null;
+        XWPFTableRow secondRow=null;
+        XWPFTableCell firstCell=null;
+        XWPFTableCell secondCell=null;
+
+        for(int i=0;i<2;i++){
+            firstRow=table.getRow(i);
+            firstRow.setHeight(380);
+            for(int j=0;j<5;j++){
+                firstCell=firstRow.getCell(j);
+                setCellText(firstCell, "测试", "FFFFC9", 1600);
+            }
+        }
+
+        firstRow=table.insertNewTableRow(0);
+        secondRow=table.insertNewTableRow(1);
+        firstRow.setHeight(380);
+        secondRow.setHeight(380);
+        for(String str:columnList){
+            if(str.indexOf("|") == -1){
+                firstCell=firstRow.addNewTableCell();
+                secondCell=secondRow.addNewTableCell();
+                createVSpanCell(firstCell, str,"CCCCCC",1600,STMerge.RESTART);
+                createVSpanCell(secondCell, "", "CCCCCC", 1600,null);
+            }else{
+                String[] strArr=str.split("\\|");
+                firstCell=firstRow.addNewTableCell();
+                createHSpanCell(firstCell, strArr[0],"CCCCCC",1600,STMerge.RESTART);
+                for(int i=1;i<strArr.length-1;i++){
+                    firstCell=firstRow.addNewTableCell();
+                    createHSpanCell(firstCell, "","CCCCCC",1600,null);
+                }
+                for(int i=1;i<strArr.length;i++){
+                    secondCell=secondRow.addNewTableCell();
+                    setCellText(secondCell, strArr[i], "CCCCCC", 1600);
+                }
+            }
+        }
+    }
+
+    public  void setCellText(XWPFTableCell cell,String text, String bgcolor, int width) {
+        CTTc cttc = cell.getCTTc();
+        CTTcPr cellPr = cttc.addNewTcPr();
+        cellPr.addNewTcW().setW(BigInteger.valueOf(width));
+        //cell.setColor(bgcolor);
+        CTTcPr ctPr = cttc.addNewTcPr();
+        CTShd ctshd = ctPr.addNewShd();
+        ctshd.setFill(bgcolor);
+        ctPr.addNewVAlign().setVal(STVerticalJc.CENTER);
+        cttc.getPList().get(0).addNewPPr().addNewJc().setVal(STJc.CENTER);
+        cell.setText(text);
+    }
+    public void createHSpanCell(XWPFTableCell cell,String value, String bgcolor, int width,STMerge.Enum stMerge){
+        CTTc cttc = cell.getCTTc();
+        CTTcPr cellPr = cttc.addNewTcPr();
+        cellPr.addNewTcW().setW(BigInteger.valueOf(width));
+        cell.setColor(bgcolor);
+        cellPr.addNewHMerge().setVal(stMerge);
+        cellPr.addNewVAlign().setVal(STVerticalJc.CENTER);
+        cttc.getPList().get(0).addNewPPr().addNewJc().setVal(STJc.CENTER);
+        cttc.getPList().get(0).addNewR().addNewT().setStringValue(value);
+    }
+
+    public void createVSpanCell(XWPFTableCell cell,String value, String bgcolor, int width,STMerge.Enum stMerge){
+        CTTc cttc = cell.getCTTc();
+        CTTcPr cellPr = cttc.addNewTcPr();
+        cellPr.addNewTcW().setW(BigInteger.valueOf(width));
+        cell.setColor(bgcolor);
+        cellPr.addNewVMerge().setVal(stMerge);
+        cellPr.addNewVAlign().setVal(STVerticalJc.CENTER);
+        cttc.getPList().get(0).addNewPPr().addNewJc().setVal(STJc.CENTER);
+        cttc.getPList().get(0).addNewR().addNewT().setStringValue(value);
+    }
+
+    public void addNewPage(XWPFDocument document,BreakType breakType){
+        XWPFParagraph xp = document.createParagraph();
+        xp.createRun().addBreak(breakType);
+    }
+
+    public void saveDocument(XWPFDocument document,String savePath) throws Exception{
+        FileOutputStream fos = new FileOutputStream(savePath);
+        document.write(fos);
+        fos.close();
+    }
 
 }
+
+
+
+
+
+
+
+
