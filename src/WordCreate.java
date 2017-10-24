@@ -9,11 +9,10 @@ import org.apache.poi.wp.usermodel.HeaderFooterType;
 import org.apache.poi.xwpf.usermodel.*;
 import org.junit.Test;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
+
+import javax.swing.text.TabExpander;
 import java.util.ArrayList;
 
-/**
- * 创建word文档
- */
 public class WordCreate {
 
     private String[] testDesc = new String[10];
@@ -28,13 +27,34 @@ public class WordCreate {
         XWPFDocument doc = new XWPFDocument();
         //add a header
         addHeader(doc);
-        addPart1Table(doc);
-        addParagraph2(doc);
+        addTestDetail(doc);
+        addText(doc, "第1部分：氧浓度间隔≤1%(体积分数)的一对\"X\"和\"O\"反应的氧浓度测定(按8.5)");
 
-        addNewPage(doc, BreakType.PAGE);
+
+        addPart1Table(doc);
+        addText(doc, "\n此反应中的\"O\"反应的氧浓度=18.0%(体积分数)(该浓度将再次用于第二部分首次测量的浓度)。\n");
+
+        addText(doc, "第2部分：氧指数的测定(按8.6)");
+
+
+        addText(doc, "连续改变氧浓度的步长d=0.2%(体积分数)[除非另有说明，首选0.2%(体积分数)]。");
+
         addPart2Table(doc);
 
-        // 设置字体对齐方式
+        addText(doc, "\n第三部分：氧浓度步长%d的校验\n");
+
+        addPart3Table(doc);
+
+        addText(doc, "\nd=0.2\tσ=sqrt{sum[(Ci-OI)^2]/(n-1)}=0.110\t2/3*σ=0.073333  3/2*σ=0.165000\n");
+        addText(doc, "校验结果：合适");
+
+        addText(doc, "使用仪器：\n" +
+                "1、NH-OI-01型智能氧指数测定仪\t\t仪器编号：\n" +
+                "2、1000mm钢直尺 \t\t精度：1mm\t\t仪器编号：\n" +
+                "3、秒表\t\t精度：±0.25s\t\t\t仪器编号：\n" +
+                "\n" +
+                "检验环境：℃，%RH\t\t\t检验日期：2015917\t\t\t测试员：\n");
+//        addPart2Table(doc);
 
         FileOutputStream out;
         try {
@@ -57,90 +77,61 @@ public class WordCreate {
 
     }
     public void addHeader(XWPFDocument doc){
-        XWPFHeader header = doc.createHeader(HeaderFooterType.DEFAULT);
-        XWPFParagraph hp1 = header.createParagraph();
-        XWPFRun hp1r1 = hp1.createRun();
-        hp1.setAlignment(ParagraphAlignment.CENTER);
-        hp1r1.setText("南京诺禾");
-        hp1r1.setFontSize(12);
-        hp1r1.setFontFamily("宋体");
         XWPFParagraph title = doc.createParagraph();
         title.setAlignment(ParagraphAlignment.CENTER);
         title.setVerticalAlignment(TextAlignment.CENTER);
-
-        // 第一页要使用title所定义的属性
         XWPFRun r1 = title.createRun();
-
-        // 设置字体是否加粗
         r1.setBold(false);
-        r1.setFontSize(15);
-
-        // 设置使用何种字体
+        r1.setFontSize(20);
         r1.setFontFamily("宋体");
 
-        // 设置上下两行之间的间距
-        r1.setTextPosition(20);
-        r1.setText("氧指数试验结果记录单");
+        r1.setText("氧指数试验原始记录\n");
+        r1.addBreak();
 
+        XWPFParagraph titlePage = doc.createParagraph();
+        XWPFRun r2 = titlePage.createRun();
+        titlePage.setAlignment(ParagraphAlignment.RIGHT);
+        titlePage.setVerticalAlignment(TextAlignment.CENTER);
+        r2.setFontSize(10);
+        r2.setFontFamily("宋体");
+        r2.setText("共      页 第      页");
+        r2.addBreak();
+    }
 
-        XWPFParagraph title2 = doc.createParagraph();
-        XWPFRun tr2 = title2.createRun();
-        tr2.setText("");
-        tr2.setFontSize(15);
-        tr2.setFontFamily("Calibri");
+    public void addTestDetail(XWPFDocument doc){
 
-        XWPFParagraph title3 = doc.createParagraph();
-        title3.setAlignment(ParagraphAlignment.CENTER);
-        title3.setVerticalAlignment(TextAlignment.CENTER);
-        XWPFRun tr3 = title3.createRun();
-        tr3.setText("按GB/T 2406.2测定的氧指数试验结果记录单");
-        tr3.setFontSize(10);
-        tr3.setFontFamily("Calibri");
+        XWPFTable table = doc.createTable();
+        table.getCTTbl().getTblPr().unsetTblBorders();
 
-        XWPFParagraph title4 = doc.createParagraph();
-        XWPFRun tr4 = title4.createRun();
-        tr4.setText("");
-        tr4.setFontSize(10);
-        tr4.setFontFamily("Calibri");
+        CTTblWidth tableWidth = table.getCTTbl().addNewTblPr().addNewTblW();
+        tableWidth.setType(STTblWidth.DXA);
+        tableWidth.setW(BigInteger.valueOf(9072));
 
-        // describe this test
-        XWPFParagraph describe = doc.createParagraph();
-        describe.setAlignment(ParagraphAlignment.LEFT);
-        describe.setVerticalAlignment(TextAlignment.CENTER);
-        XWPFRun describeRun = describe.createRun();
+        XWPFTableRow tableRowOne = table.getRow(0);
+        tableRowOne.getCell(0).setText("样品编号：");
+        tableRowOne.addNewTableCell().setText("检验标准：GB/T 2406.2-2009");
 
-        String[] titles = {"材料：", "试样类别：", "点燃方法：", "状态调节方法：", "氧浓度增量(d)：",
-                "氧指数[浓度,%(体积分数)]：", "σ：", "试验日期：", "实验室 No.：", "实验 No.："};
+        XWPFTableRow tableRowTwo = table.createRow();
+        tableRowTwo.getCell(0).setText("材料：");
+        tableRowTwo.getCell(1).setText("试样类别：IV(mm厚)");
 
-        for(int i = 0; i < 10; i++){
-            describeRun.setText(titles[i] + this.testDesc[i] + '\n');
-            describeRun.setFontSize(10);
-            describeRun.setFontFamily("宋体");
-        }
-        XWPFRun describeRun2 = describe.createRun();
-        describeRun.setText("\n" + "第1部分：氧浓度间隔≤1%(体积分数)的一对\"X\"和\"O\"反应的氧浓度测定(按8.5)" + '\n');
-        describeRun.setFontSize(10);
-        describeRun.setFontFamily("宋体");
+        XWPFTableRow tableRowThree = table.createRow();
+        tableRowThree.getCell(0).setText("点燃方法：顶部点燃法");
+        tableRowThree.getCell(1).setText("氧指数[浓度,%(体积分数)]：18.1%");
+
+        XWPFTableRow tableRowFour = table.createRow();
+        tableRowFour.getCell(0).setText("氧浓度增量(d)：0.2%(体积分数)");
     }
 
     public void addPart1Table(XWPFDocument doc){
 
-        XWPFTable table1 = doc.createTable();
-        CTTblWidth table1Width = table1.getCTTbl().addNewTblPr().addNewTblW();
+        XWPFTable table = doc.createTable();
+        CTTblWidth table1Width = table.getCTTbl().addNewTblPr().addNewTblW();
         table1Width.setType(STTblWidth.PCT);
-//        int[] colWidthArr = new int[] {2592, 648, 648, 648, 648, 648, 648, 648, 648, 648, 648};
+                table1Width.setW(BigInteger.valueOf(9072));
 
-
-        table1Width.setW(BigInteger.valueOf(9072));
-
-//        table1.getCTTbl().addNewTblGrid().addNewGridCol().setW(BigInteger.valueOf(6000));
-//        table1.getCTTbl().getTblGrid().addNewGridCol().setW(BigInteger.valueOf(2000));
-
-        XWPFTableRow tableRow1 = table1.getRow(0);
+        XWPFTableRow tableRow1 = table.getRow(0);
         tableRow1.getCell(0).setText("氧浓度(体积分数)/%");
-
-//        tableRow1.getCell(0).set
-
 
         for(int i = 0; i < 10; i ++){
             tableRow1.addNewTableCell().setText(part1[0][i]);
@@ -150,121 +141,64 @@ public class WordCreate {
 
         String[] table1Title = {"燃烧时间/s", "燃烧长度/mm", "反应(\"X\")或\"O\""};
         for(int i = 0; i < 3; i ++){
-            rows[i] = table1.createRow();
+            rows[i] = table.createRow();
             rows[i].getCell(0).setText(table1Title[i]);
             for(int j = 0; j < 10; j ++){
                 rows[i].getCell(j + 1).setText(part1[i][j]);
             }
         }
     }
-    public void addParagraph2(XWPFDocument doc){
-        XWPFParagraph p2 = doc.createParagraph();
-        XWPFRun p2r = p2.createRun();
-        p2r.setBold(false);
-        p2r.setFontSize(10);
-        p2r.setFontFamily("宋体");
-        p2r.setText("\n此反应中\"O\"反应的氧浓度=17.0%(体积分数)(该浓度将再次用于第二部分首次测量的浓度)。\n" + "\n" +
-                "第2部分：氧指数的测定(按8.6)\n" +
-                "连续改变氧浓度的步长d=0.2%(体积分数)[除非另有说明，首选0.2%(体积分数)]。\n");
 
-    }
 
     public void addPart2Table(XWPFDocument doc){
+        XWPFTable table = doc.createTable();
+        CTTblWidth tableWidth = table.getCTTbl().addNewTblPr().addNewTblW();
+        tableWidth.setType(STTblWidth.DXA);
+        tableWidth.setW(BigInteger.valueOf(9072));
 
-//        XWPFTable table2 = doc.createTable();
+        table.setWidth(5*1440);
+        XWPFTableRow rowOne = table.getRow(0);
+        rowOne.addNewTableCell().setText("Nt系列测量");
 
-        List<String> columnList = new ArrayList<String>();
-        columnList.add("序号");
-        columnList.add("姓名信息gi|姓甚|名谁");
-        columnList.add("名刺信息|籍贯|营生");
-        XWPFTable table = doc.createTable(2,5);
+        XWPFTableRow rowTwo = table.createRow();
+        rowTwo.getCell(0).setText("");
+        rowTwo.getCell(1).setText("Nt系列测量(8.6.1和8.6.2)");
+        rowTwo.createCell().setText("8.6.3");
+        rowTwo.createCell().setText("cf");
 
-        CTTbl ttbl = table.getCTTbl();
-        CTTblPr tblPr = ttbl.getTblPr() == null ? ttbl.addNewTblPr() : ttbl.getTblPr();
-        CTTblWidth tblWidth = tblPr.isSetTblW() ? tblPr.getTblW() : tblPr.addNewTblW();
-        CTJc cTJc=tblPr.addNewJc();
-        cTJc.setVal(STJc.Enum.forString("center"));
-        tblWidth.setW(new BigInteger("8000"));
-        tblWidth.setType(STTblWidth.DXA);
+        XWPFTableRow rowThree = table.createRow();
+        rowThree.getCell(0).setText("氧浓度(体积分数)/%");
+        rowThree.getCell(1).setText("18.0");
+        rowThree.createCell().setText("18.2");
+        rowThree.createCell().setText("dd");
+        rowThree.createCell().setText("sss");
+        rowThree.createCell().setText("ddd");
 
-        XWPFTableRow firstRow=null;
-        XWPFTableRow secondRow=null;
-        XWPFTableCell firstCell=null;
-        XWPFTableCell secondCell=null;
-
-        for(int i=0;i<2;i++){
-            firstRow=table.getRow(i);
-            firstRow.setHeight(380);
-            for(int j=0;j<5;j++){
-                firstCell=firstRow.getCell(j);
-                setCellText(firstCell, "测试", "FFFFC9", 1600);
-            }
-        }
-
-        firstRow=table.insertNewTableRow(0);
-        secondRow=table.insertNewTableRow(1);
-        firstRow.setHeight(380);
-        secondRow.setHeight(380);
-        for(String str:columnList){
-            if(str.indexOf("|") == -1){
-                firstCell=firstRow.addNewTableCell();
-                secondCell=secondRow.addNewTableCell();
-                createVSpanCell(firstCell, str,"CCCCCC",1600,STMerge.RESTART);
-                createVSpanCell(secondCell, "", "CCCCCC", 1600,null);
-            }else{
-                String[] strArr=str.split("\\|");
-                firstCell=firstRow.addNewTableCell();
-                createHSpanCell(firstCell, strArr[0],"CCCCCC",1600,STMerge.RESTART);
-                for(int i=1;i<strArr.length-1;i++){
-                    firstCell=firstRow.addNewTableCell();
-                    createHSpanCell(firstCell, "","CCCCCC",1600,null);
-                }
-                for(int i=1;i<strArr.length;i++){
-                    secondCell=secondRow.addNewTableCell();
-                    setCellText(secondCell, strArr[i], "CCCCCC", 1600);
-                }
-            }
-        }
+        XWPFTableCell cell = rowOne.getCell(0);
     }
 
-    public  void setCellText(XWPFTableCell cell,String text, String bgcolor, int width) {
-        CTTc cttc = cell.getCTTc();
-        CTTcPr cellPr = cttc.addNewTcPr();
-        cellPr.addNewTcW().setW(BigInteger.valueOf(width));
-        //cell.setColor(bgcolor);
-        CTTcPr ctPr = cttc.addNewTcPr();
-        CTShd ctshd = ctPr.addNewShd();
-        ctshd.setFill(bgcolor);
-        ctPr.addNewVAlign().setVal(STVerticalJc.CENTER);
-        cttc.getPList().get(0).addNewPPr().addNewJc().setVal(STJc.CENTER);
-        cell.setText(text);
-    }
-    public void createHSpanCell(XWPFTableCell cell,String value, String bgcolor, int width,STMerge.Enum stMerge){
-        CTTc cttc = cell.getCTTc();
-        CTTcPr cellPr = cttc.addNewTcPr();
-        cellPr.addNewTcW().setW(BigInteger.valueOf(width));
-        cell.setColor(bgcolor);
-        cellPr.addNewHMerge().setVal(stMerge);
-        cellPr.addNewVAlign().setVal(STVerticalJc.CENTER);
-        cttc.getPList().get(0).addNewPPr().addNewJc().setVal(STJc.CENTER);
-        cttc.getPList().get(0).addNewR().addNewT().setStringValue(value);
-    }
+    public void addPart3Table(XWPFDocument doc){
 
-    public void createVSpanCell(XWPFTableCell cell,String value, String bgcolor, int width,STMerge.Enum stMerge){
-        CTTc cttc = cell.getCTTc();
-        CTTcPr cellPr = cttc.addNewTcPr();
-        cellPr.addNewTcW().setW(BigInteger.valueOf(width));
-        cell.setColor(bgcolor);
-        cellPr.addNewVMerge().setVal(stMerge);
-        cellPr.addNewVAlign().setVal(STVerticalJc.CENTER);
-        cttc.getPList().get(0).addNewPPr().addNewJc().setVal(STJc.CENTER);
-        cttc.getPList().get(0).addNewR().addNewT().setStringValue(value);
+
+        XWPFTable table = doc.createTable(5, 7);
+        CTTblWidth tableWidth = table.getCTTbl().addNewTblPr().addNewTblW();
+        tableWidth.setType(STTblWidth.DXA);
+        tableWidth.setW(BigInteger.valueOf(9072));
     }
 
     public void addNewPage(XWPFDocument document,BreakType breakType){
         XWPFParagraph xp = document.createParagraph();
         xp.createRun().addBreak(breakType);
     }
+    public void addText(XWPFDocument doc, String text){
+        XWPFParagraph pa = doc.createParagraph();
+        XWPFRun run = pa.createRun();
+        run.setText(text);
+        run.setFontSize(10);
+        run.setFontFamily("宋体");
+
+    }
+
 
     public void saveDocument(XWPFDocument document,String savePath) throws Exception{
         FileOutputStream fos = new FileOutputStream(savePath);
