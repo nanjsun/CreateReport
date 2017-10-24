@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/build/ooxml-test-classes" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/osgi/src/main/java" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/osgi/src/test/java" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/contrib/poi-ruby/java" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/examples/src" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/excelant/java" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/excelant/testcases" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/integrationtest" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/java" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/ooxml/java" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/ooxml/testcases" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/scratchpad/src" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/scratchpad/testcases" />
+          <root url="file://$USER_HOME$/Downloads/poi-3.17-complied/src/testcases" />
+        </SOURCES>
+        <jarDirectory url="file://$USER_HOME$/Downloads/poi-3.17-complied" recursive="false" />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="lib" level="project" />
+  </component>
+</module>
